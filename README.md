@@ -2,14 +2,13 @@
 
 It is a small React application for managing a shopping list.
 
-[demo](https://shopping-list-app-phi.vercel.app/)
+[link](https://shopping-list-app-phi.vercel.app/)
 
 ![screenshot](https://shopping-list-app-phi.vercel.app/Screenshot%202025-03-31%20021651.png)
 
 ## Setup
 
 ```bash
-bash
 npm install
 npm run dev
 ```
