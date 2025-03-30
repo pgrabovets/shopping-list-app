@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { v4 as uuidv4 } from "uuid";
+import { persist } from "zustand/middleware";
 
 interface ShoppingListItem {
   id: string;
@@ -20,59 +21,60 @@ interface ShoppingListState {
   setCurrentCategory: (value: string) => void;
 }
 
-export const useShoppingListStore = create<ShoppingListState>()((set, get) => ({
-  currentCategory: "",
-  items: [],
+export const useShoppingListStore = create<ShoppingListState>()(
+  persist(
+    (set, get) => ({
+      currentCategory: "",
+      items: [],
 
-  addShoppingItem: (name, category, quantity) => {
-    const item: ShoppingListItem = {
-      id: uuidv4(),
-      name: name,
-      isPurchased: false,
-      quantity: quantity,
-      category: category,
-    };
-    set((state) => ({
-      items: [...state.items, item],
-    }));
-  },
+      addShoppingItem: (name, category, quantity) => {
+        const item: ShoppingListItem = {
+          id: uuidv4(),
+          name,
+          isPurchased: false,
+          quantity,
+          category,
+        };
+        set((state) => ({
+          items: [...state.items, item],
+        }));
+      },
 
-  updateShoppingItem: (updated) => {
-    set((state) => ({
-      items: state.items.map((item) => {
-        if (item.id === updated.id) {
-          return updated;
-        }
-        return item;
-      }),
-    }));
-  },
+      updateShoppingItem: (updated) => {
+        set((state) => ({
+          items: state.items.map((item) =>
+            item.id === updated.id ? updated : item
+          ),
+        }));
+      },
 
-  removeShoppingItem: (id: string) => {
-    set((state) => ({
-      items: state.items.filter((item) => item.id !== id),
-    }));
-  },
+      removeShoppingItem: (id: string) => {
+        set((state) => ({
+          items: state.items.filter((item) => item.id !== id),
+        }));
+      },
 
-  setCurrentCategory: (value) => {
-    set(() => ({
-      currentCategory: value,
-    }));
-  },
+      setCurrentCategory: (value) => {
+        set(() => ({
+          currentCategory: value,
+        }));
+      },
 
-  getById: (id: string) => {
-    return get().items.find((item) => item.id === id);
-  },
+      getById: (id: string) => {
+        return get().items.find((item) => item.id === id);
+      },
 
-  getByCurrentCategory: () => {
-    const state = get();
-
-    if (state.currentCategory === "") {
-      return state.items;
+      getByCurrentCategory: () => {
+        const state = get();
+        return state.currentCategory
+          ? state.items.filter(
+              (item) => item.category === state.currentCategory
+            )
+          : state.items;
+      },
+    }),
+    {
+      name: "shopping-list-store",
     }
-
-    return state.items.filter(
-      (item) => item.category === state.currentCategory
-    );
-  },
-}));
+  )
+);
